@@ -1,0 +1,4 @@
+continuous
+continuous
+continuous
+discrete

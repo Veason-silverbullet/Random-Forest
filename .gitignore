@@ -1,0 +1,9 @@
+/.idea
+/python/.idea
+/python/__pycache__
+/python/venv
+/c++/.vs
+/c++/x64
+/c++/Random-Forest/x64
+*.vcxproj.user
+*.json

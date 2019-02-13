@@ -1,0 +1,3 @@
+[submodule "c++/Random-Forest/rapidjson"]
+	path = c++/Random-Forest/rapidjson
+	url = https://github.com/Tencent/rapidjson
