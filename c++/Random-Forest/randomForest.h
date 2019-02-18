@@ -13,6 +13,7 @@ namespace randomForest { namespace randomForest {
         Cart,
         Mixture
     };
+    static const string forestTypeStr[3] = { "ID3", "CART", "Mixture" };
 
     template<class Type>
     class RandomForest
@@ -26,10 +27,15 @@ namespace randomForest { namespace randomForest {
 
         RandomForest();
         RandomForest(RandomForestType randomForestType);
+        RandomForestType getRandomForestType();
         void setRandomForestType(RandomForestType randomForestType);
         void setTreeNum(unsigned int treeNum);
         void setRandomDim(unsigned int randomDim);
         void buildRandomForest(Data<Type>* feature, Data<Type>* label, unsigned int labelDim);
         unsigned int test(Data<Type>* feature, Data<Type>* label, vector<unsigned int> & result);
+        void load(string fileName);
+        void save(string fileName);
+        void release();
+        ~RandomForest();
     };
 }}

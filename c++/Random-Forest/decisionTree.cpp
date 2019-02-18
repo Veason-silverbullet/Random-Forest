@@ -29,7 +29,14 @@ namespace randomForest { namespace decisionTree {
     template <class Type>
     Tree<Type>::Tree()
     {
+        this->treeId = -1;
         this->nodeId = 0;
+    }
+
+    template <class Type>
+    void Tree<Type>::setTreeId(int treeId)
+    {
+        this->treeId = treeId;
     }
 
     template <class Type>
@@ -159,7 +166,7 @@ namespace randomForest { namespace decisionTree {
             assert(doc[i].HasMember("node_id") && doc[i]["node_id"].IsInt());
             string nodeType = doc[i]["node_type"].GetString();
             NodeId nodeId = doc[i]["node_id"].GetInt();
-            if (nodeType == "Continuous")
+            if ("Continuous" == nodeType)
             {
                 assert(doc[i].HasMember("feature_index") && doc[i]["feature_index"].IsInt());
                 assert(doc[i].HasMember("feature_value") && doc[i]["feature_value"].IsNumber());
@@ -170,7 +177,7 @@ namespace randomForest { namespace decisionTree {
                     doc[i]["feature_index"].GetInt(), (Type)(doc[i]["feature_value"].GetDouble()), doc[i]["max_label"].GetInt(), doc[i]["left_child_id"].GetInt(), doc[i]["right_child_id"].GetInt());
                 nodeMap.insert({ nodeId,nodeInfo });
             }
-            else if (nodeType == "Discrete")
+            else if ("Discrete" == nodeType)
             {
                 assert(doc[i].HasMember("feature_index") && doc[i]["feature_index"].IsInt());
                 assert(doc[i].HasMember("feature_list") && doc[i]["feature_list"].IsArray());
@@ -186,7 +193,7 @@ namespace randomForest { namespace decisionTree {
                     doc[i]["feature_index"].GetInt(), featureList, doc[i]["max_label"].GetInt(), childIdList);
                 nodeMap.insert({ nodeId,nodeInfo });
             }
-            else if (nodeType == "Leaf")
+            else if ("Leaf" == nodeType)
             {
                 assert(doc[i].HasMember("label") && doc[i]["label"].IsInt());
                 LeafNodeInfo<Type>* nodeInfo = new LeafNodeInfo<Type>(nodeId, NodeType::Leaf,
@@ -260,11 +267,12 @@ namespace randomForest { namespace decisionTree {
                 throw exception(("Node type error: unexpected node type [" + nodeTypeStr[nodeInfo->nodeType] + "] is not [Continuous | Discrete | Leaf].").c_str());
             doc.PushBack(val, docAllocator);
         }
+        for (auto it = nodeMap.begin(); it != nodeMap.end(); ++it)
+            delete it->second;
+
         Writer<FileWriteStream> writer(jsonWriter);
         doc.Accept(writer);
         fclose(file);
-        for (auto it = nodeMap.begin(); it != nodeMap.end(); ++it)
-            delete it->second;
     }
 
     template <class Type>

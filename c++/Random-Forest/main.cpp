@@ -14,7 +14,7 @@ using namespace randomForest::randomForest;
 
 int main()
 {
-    //test();
+    test<float>();
 
 #ifdef DisplayTime
     clock_t startTime = clock();
@@ -31,6 +31,7 @@ int main()
     vector<unsigned int> result;
     unsigned int cnt = randomForest.test(feature, label, result);
     printf("%.16lf\n", ((double)cnt) / feature->num);
+    randomForest.save("../../data/model.json");
 
 #ifdef DisplayTime
     clock_t endTime = clock();

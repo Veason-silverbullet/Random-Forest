@@ -15,6 +15,7 @@ namespace randomForest { namespace decisionTree {
         CART,
         C4_5
     };
+    static const string treeTypeStr[3] = { "ID3", "CART", "C4.5" };
 
     template <class Type>
     struct FeatureLabelBundle
@@ -31,10 +32,12 @@ namespace randomForest { namespace decisionTree {
     class Tree
     {
     public:
+        int treeId;
         unsigned int nodeId;
         Node<Type>* root;
 
         Tree<Type>();
+        void setTreeId(int treeId);
         void serialize(map<NodeId, NodeInfo<Type>*> & nodeMap);
         void deserialize(const map<NodeId, NodeInfo<Type>*> & nodeMap);
         void load(string fileName);
