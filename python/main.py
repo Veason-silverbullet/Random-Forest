@@ -12,7 +12,7 @@ testing_csv_header = True  # Determine whether discard testing csv file header
 mapping_file = '../data/index.txt'  # Map file path, to convert the unordered label to ordered label as [0, 1, 2,..., N - 1], supposing N labels
 feature_attribute_file = '../data/feature_attribute.txt'  # Feature attribute file path, to determine the feature attribute is continuous or discrete
 
-random_forest_type = 'Mixture'  # Random_forest_type can be 'ID3' or 'Cart' or 'Mixture'
+random_forest_type = 'Mixture'  # Random_forest_type can be 'ID3' or 'CART' or 'Mixture'
 feature_use_rate = 0.75  # Feature use rate in random forest. To use (feature_use_rate * N) of N features in building decision tree.
 
 

@@ -7,12 +7,15 @@ class Node:
     def get_node_type(self):
         return self.node_type
 
+    def __init__(self, node_id=None):
+        self.node_id = node_id
+
 
 class ContinuousNode(Node):
     node_type = 'Continuous'
 
     def __init__(self, node_id=None, feature_index=None, feature_value=None, max_label=None):
-        self.node_id = node_id
+        super(ContinuousNode, self).__init__(node_id)
         self.feature_index = feature_index
         self.feature_value = feature_value
         self.max_label = max_label
@@ -45,7 +48,7 @@ class DiscreteNode(Node):
     node_type = 'Discrete'
 
     def __init__(self, node_id=None, feature_index=None, feature_list=None, max_label=None):
-        self.node_id = node_id
+        super(DiscreteNode, self).__init__(node_id)
         self.feature_index = feature_index
         self.feature_list = feature_list
         self.max_label = max_label
@@ -78,7 +81,7 @@ class LeafNode(Node):
     node_type = 'Leaf'
 
     def __init__(self, node_id=None, label=None):
-        self.node_id = node_id
+        super(LeafNode, self).__init__(node_id)
         self.label = label
 
     def serialize(self):
@@ -189,6 +192,7 @@ class Tree:
 class DecisionTree(Tree):
     def __init__(self):
         super(DecisionTree, self).__init__()
+        self.tree_id = None
         self.feature_index = None
         self.feature_attribute = None
         self.feature_list = None
@@ -491,7 +495,7 @@ class ID3Tree(DecisionTree):
 
 
 class CartTree(DecisionTree):
-    decision_tree_type = 'Cart'
+    decision_tree_type = 'CART'
 
     def __init__(self):
         super(CartTree, self).__init__()

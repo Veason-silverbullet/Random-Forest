@@ -1,5 +1,6 @@
-import decision_tree as dt
 import utility
+import decision_tree as dt
+import random_forest as rf
 
 tree1 = dt.ID3Tree()
 tree1.root = dt.ContinuousNode(0, 0, 1.0, 0)
@@ -51,3 +52,15 @@ tree4.build_decision_tree(training_feature, training_label, feature_index, featu
 tree4.save('../data/test4.json')
 cnt, result = tree4.test(testing_feature, testing_label)
 print(cnt, result)
+
+forest1 = rf.RandomForest()
+forest1.set_random_forest_type('Mixture')
+forest1.set_tree_num(2)
+forest1.set_random_dim(3)
+forest1.load_data(training_feature, training_label, feature_attribute, feature_list, 8, 2)
+forest1.build_random_forest()
+forest1.save('../data/test5.json')
+
+forest2 = rf.RandomForest()
+forest2.load('../data/test5.json')
+forest2.save('../data/test6.json')

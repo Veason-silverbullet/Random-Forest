@@ -1,19 +1,15 @@
 import math
 import random
+import json
 import utility
 import decision_tree as dt
 
 
 class RandomForest:
-    random_forest_type_candidates = ['ID3', 'Cart', 'Mixture']
+    random_forest_type_candidates = ['ID3', 'CART', 'Mixture']
 
-    def get_random_forest_type(self):
-        return self.random_forest_type
-
-    def __init__(self, random_forest_type, random_dim=None, tree_num=None):
-        if random_forest_type not in self.random_forest_type_candidates:
-            raise Exception('Logic error: random forest type must be one type of [ID3 | Cart | Mixture]')
-        self.random_forest_type = random_forest_type
+    def __init__(self, random_forest_type=None, random_dim=None, tree_num=None):
+        self.random_forest_type = random_forest_type if random_forest_type is not None else 'ID3'
         self.random_dim = random_dim
         self.tree_num = tree_num
         self.decision_trees = []
@@ -24,6 +20,9 @@ class RandomForest:
         self.feature_list = None
         self.feature_dim = None
         self.label_dim = None
+
+    def get_random_forest_type(self):
+        return self.random_forest_type
 
     def set_random_forest_type(self, random_forest_type):
         self.random_forest_type = random_forest_type
@@ -73,7 +72,7 @@ class RandomForest:
                 utility.generate_training_batch(self.feature, self.data_num, self.feature_dim, self.random_dim, self.feature_attribute, self.feature_list)
             if self.random_forest_type == 'ID3':
                 decision_tree = dt.ID3Tree()
-            elif self.random_forest_type == 'Cart':
+            elif self.random_forest_type == 'CART':
                 decision_tree = dt.CartTree()
             else:
                 if random.randint(0, 1) == 0:
@@ -81,6 +80,7 @@ class RandomForest:
                 else:
                     decision_tree = dt.CartTree()
             decision_tree.build_decision_tree(sample_feature, self.label, feature_index, sample_feature_attribute, sample_feature_list)
+            decision_tree.tree_id = i
             self.decision_trees.append(decision_tree)
 
     def test(self, feature, label, feature_attribute, feature_dim, label_dim):
@@ -116,3 +116,42 @@ class RandomForest:
             if prediction[i] == label[i]:
                 test_cnt += 1
         print('acc =', test_cnt / data_num)
+
+    def load(self, file_name):
+        with open(file_name, 'r') as f:
+            forest_dict = json.load(f)
+            self.set_random_forest_type(forest_dict['forest_type'])
+            self.set_tree_num(forest_dict['tree_num'])
+            tree_dict_list = forest_dict['trees']
+            if self.tree_num != len(tree_dict_list):
+                raise Exception('Tree num error: expected tree num is ' + str(self.tree_num) + ', but ' + str(len(tree_dict_list)) + ' was found in tree list.')
+            self.decision_trees = [None for _ in range(self.tree_num)]
+            for i in range(self.tree_num):
+                tree_id = tree_dict_list[i]['tree_id']
+                if tree_dict_list[i]['tree_type'] == 'ID3':
+                    self.decision_trees[tree_id] = dt.ID3Tree()
+                elif tree_dict_list[i]['tree_type'] == 'CART':
+                    self.decision_trees[tree_id] = dt.CartTree()
+                elif tree_dict_list[i]['tree_type'] == 'C4.5':
+                    self.decision_trees[tree_id] = dt.C4_5Tree()
+                else:
+                    raise Exception('Random forest type error: randomForestType must be [ID3 | Cart | Mixture].')
+                self.decision_trees[tree_id].tree_id = tree_id
+                self.decision_trees[tree_id].deserialize(tree_dict_list[i]['nodes'])
+
+    def save(self, file_name):
+        with open(file_name, 'w') as f:
+            tree_dict_list = list()
+            for i in range(self.tree_num):
+                tree_dict = {
+                    'tree_id': self.decision_trees[i].tree_id,
+                    'tree_type': self.decision_trees[i].get_tree_type(),
+                    'nodes': self.decision_trees[i].serialize()
+                }
+                tree_dict_list.append(tree_dict)
+            forest_dict = {
+                'forest_type': self.get_random_forest_type(),
+                'tree_num': self.tree_num,
+                'trees': tree_dict_list
+            }
+            json.dump(forest_dict, f)

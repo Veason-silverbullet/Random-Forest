@@ -91,8 +91,8 @@ void test()
 
     RandomForest<Type> forest1 = RandomForest<Type>();
     forest1.setRandomForestType(RandomForestType::Mixture);
-    forest1.setRandomDim(3);
     forest1.setTreeNum(2);
+    forest1.setRandomDim(3);
     forest1.buildRandomForest(feature, label, 8);
     forest1.save("../../data/test5.json");
 
