@@ -273,7 +273,7 @@ class DecisionTree(Tree):
 
         return cnt, result
 
-    def create_node(self, feature, label, used_feature_index, continuous_gain, discrete_gain):
+    def create_node(self, feature, label, used_feature_index):
         data_num = len(feature)
         if data_num == 0:
             raise Exception('Create node error: data num equals to 0.')
@@ -325,7 +325,7 @@ class DecisionTree(Tree):
                                 cnt[1][temp_data[k][1]] += 1
                             threshold_index = j
                             break
-                    gain = continuous_gain(cnt, self.label_dim, data_num)
+                    gain = self.continuous_gain(cnt, self.label_dim, data_num)
                     if best_gain is None or gain > best_gain:
                         best_gain = gain
                         best_index = i
@@ -336,13 +336,13 @@ class DecisionTree(Tree):
                             cnt[0][temp_data[threshold_index][1]] += 1
                             cnt[1][temp_data[threshold_index][1]] -= 1
                             threshold_index += 1
-                        gain = continuous_gain(cnt, self.label_dim, data_num)
+                        gain = self.continuous_gain(cnt, self.label_dim, data_num)
                         if best_gain is None or gain > best_gain:
                             best_gain = gain
                             best_index = i
                             best_value = threshold[i][j]
                 elif self.feature_attribute[i] == 'Discrete':
-                    gain = discrete_gain(feature_cnt[i], self.label_dim, data_num)
+                    gain = self.discrete_gain(feature_cnt[i], self.label_dim, data_num)
                     if best_gain is None or gain > best_gain:
                         best_gain = gain
                         best_index = i
@@ -396,9 +396,6 @@ class DecisionTree(Tree):
             raise Exception('Logic error: best gain is None.')
 
     def build_decision_tree(self, feature, label, feature_index, feature_attribute, feature_list):
-        if self.continuous_gain is None or self.discrete_gain is None:
-            raise Exception('Logic error: [continuous_gain | discrete_gain] is not implemented in decision tree.\n'
-                            'Make sure not call class DecisionTree() and function [continuous_gain & discrete_gain]must be implemented.')
         if len(feature[0]) != len(feature_index):
             raise Exception('Logic error: feature index dimension not match.')
 
@@ -412,7 +409,7 @@ class DecisionTree(Tree):
             feature_num = len(feature_list[i])
             for j in range(feature_num):
                 self.feature_map[i][feature_list[i][j]] = j
-        self.root = self.create_node(feature, label, [], self.continuous_gain, self.discrete_gain)
+        self.root = self.create_node(feature, label, [])
         node_queue = q.Queue()
         node_queue.put(self.root)
 
@@ -420,12 +417,12 @@ class DecisionTree(Tree):
             node = node_queue.get()
             if node.get_node_type() == 'Continuous':
                 if len(node.temp_feature0) != 0:
-                    left_child_node = self.create_node(node.temp_feature0, node.temp_label0, node.used_feature_index, self.continuous_gain, self.discrete_gain)
+                    left_child_node = self.create_node(node.temp_feature0, node.temp_label0, node.used_feature_index)
                     node.left_child = left_child_node
                     if left_child_node.get_node_type() != 'Leaf':
                         node_queue.put(left_child_node)
                 if len(node.temp_feature1) != 0:
-                    right_child_node = self.create_node(node.temp_feature1, node.temp_label1, node.used_feature_index, self.continuous_gain, self.discrete_gain)
+                    right_child_node = self.create_node(node.temp_feature1, node.temp_label1, node.used_feature_index)
                     node.right_child = right_child_node
                     if right_child_node.get_node_type() != 'Leaf':
                         node_queue.put(right_child_node)
@@ -436,7 +433,7 @@ class DecisionTree(Tree):
             elif node.get_node_type() == 'Discrete':
                 for i in range(len(node.feature_list)):
                     if len(node.temp_features[i]) != 0:
-                        child_node = self.create_node(node.temp_features[i], node.temp_labels[i], node.used_feature_index, self.continuous_gain, self.discrete_gain)
+                        child_node = self.create_node(node.temp_features[i], node.temp_labels[i], node.used_feature_index)
                         node.child_list[i] = child_node
                         if child_node.get_node_type() != 'Leaf':
                             node_queue.put(child_node)
